@@ -11,15 +11,16 @@ regexCPython = re.compile(r'-cp(\d+)-')
 regexLinux = re.compile(r'-linux_')
 # regexSegment = re.compile(r'-([a-zA-Z0-9]+)')
 
-
+reDevice = re.compile(r'([cpuda]{2,3}\d)')
 class EPlatformPytorch(str, Enum):
     DARWIN = 'macosx'
     LINUX = 'linux'
     pass
 
+URL_PYTORCH_DOWNLOAD = 'https://download.pytorch.org'
 
 def getPytorchWheelHtml(package, device) -> str:
-    r = requests.get(f'https://download.pytorch.org/whl/{device}/{package}', headers={ 'accept': 'text/html' })
+    r = requests.get(f'{URL_PYTORCH_DOWNLOAD}/whl/{device}/{package}', headers={ 'accept': 'text/html' })
     return r.text
 
 def getBsObject(htmlTxt) -> BeautifulSoup:
@@ -39,7 +40,7 @@ def getPytorchWheelLinks(
         x for x in tousLesLiens 
         if x.startswith(f'/whl/{device}/{package}-{version}') 
         and versionStr in regexCPython.findall(x)
-        and regexLinux.findall(x)
+        # and regexLinux.findall(x)
         # and str(platform) in regexSegment.findall(x)
     ]
     return ret
@@ -57,12 +58,12 @@ if __name__ == '__main__':
     liensAudio: list[str] = getPytorchWheelLinks('torchvision', device, '0.17.0')
     
     if len(liensTorch) == 1:
-        print(f"torch @ https://download.pytorch.org{rmTrailingHash(liensTorch[0])}")
+        print(f"torch @ {URL_PYTORCH_DOWNLOAD}{rmTrailingHash(liensTorch[0])}")
 
     if len(liensVision) == 1:
-        print(f"torchaudio @ https://download.pytorch.org{rmTrailingHash(liensAudio[0])}")
+        print(f"torchaudio @ {URL_PYTORCH_DOWNLOAD}{rmTrailingHash(liensAudio[0])}")
 
     if len(liensAudio) == 1:
-        print(f"torchvision @ https://download.pytorch.org{rmTrailingHash(liensVision[0])}")
+        print(f"torchvision @ {URL_PYTORCH_DOWNLOAD}{rmTrailingHash(liensVision[0])}")
     # 
     pass
